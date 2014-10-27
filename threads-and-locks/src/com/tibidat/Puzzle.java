@@ -1,7 +1,7 @@
 package com.tibidat;
 
 public class Puzzle {
-    static boolean answerReady = false;
+    static volatile boolean answerReady = false;
     static int answer = 0;
     static Thread t1 = new Thread() {
         public void run() {
