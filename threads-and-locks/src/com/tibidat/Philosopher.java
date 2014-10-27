@@ -1,19 +1,16 @@
 package com.tibidat;
 
-import java.util.concurrent.locks.Condition;
-import java.util.concurrent.locks.ReentrantLock;
-
 public class Philosopher extends Thread {
     private boolean eating;
+    private String name;
     private Philosopher left;
     private Philosopher right;
-    private ReentrantLock table;
-    private Condition condition;
+    private Object table;
 
-    public Philosopher(ReentrantLock table) {
+    public Philosopher(String name, Object table) {
+        this.name = name;
         eating = false;
         this.table = table;
-        condition = table.newCondition();
     }
 
     public void setLeft(Philosopher left) {
@@ -36,28 +33,34 @@ public class Philosopher extends Thread {
     }
 
     private void think() throws InterruptedException {
-        table.lock();
-        try {
+        synchronized (table) {
             eating = false;
-            left.condition.signal();
-            right.condition.signal();
-        } finally {
-            table.unlock();
+            synchronized (this) {
+                System.out.println(this.name + " thinking");
+                this.notifyAll();
+            }
         }
         Thread.sleep(1000);
     }
 
     private void eat() throws InterruptedException {
-        table.lock();
-        try {
-            while (left.eating || right.eating) {
-                condition.await();
+        boolean mustWait = false;
+        synchronized (table) {
+            if (!(left.eating || right.eating)) {
+                System.out.println(this.name + " eating");
+                eating = true;
+            } else {
+                mustWait = true;
             }
-            eating = true;
-        } finally {
-            table.unlock();
         }
-        Thread.sleep(1000);
+        if (mustWait) {
+            System.out.println(this.name + " must wait");
+            synchronized (this) {
+                this.wait(1000);
+            }
+        } else {
+            Thread.sleep(1000);
+        }
     }
 }
 

@@ -1,16 +1,14 @@
 package com.tibidat;
 
-import java.util.concurrent.locks.ReentrantLock;
-
 public class DiningPhilosophers {
 
     public static void main(String[] args) throws InterruptedException {
-        ReentrantLock table = new ReentrantLock();
-        Philosopher p1 = new Philosopher(table);
-        Philosopher p2 = new Philosopher(table);
-        Philosopher p3 = new Philosopher(table);
-        Philosopher p4 = new Philosopher(table);
-        Philosopher p5 = new Philosopher(table);
+        Object table = new Object();
+        Philosopher p1 = new Philosopher("p1", table);
+        Philosopher p2 = new Philosopher("p2", table);
+        Philosopher p3 = new Philosopher("p3", table);
+        Philosopher p4 = new Philosopher("p4", table);
+        Philosopher p5 = new Philosopher("p5", table);
         p1.setLeft(p5);
         p1.setRight(p2);
         p2.setLeft(p1);
@@ -22,11 +20,12 @@ public class DiningPhilosophers {
         p5.setLeft(p4);
         p5.setRight(p1);
 
-        p1.run();
-        p2.run();
-        p3.run();
-        p4.run();
-        p5.run();
+        p1.start();
+        p2.start();
+        p3.start();
+        p4.start();
+        p5.start();
+        System.out.println("all threads running");
         p1.join();
         p2.join();
         p3.join();
