@@ -1,39 +1,63 @@
 package com.tibidat;
 
-import java.util.Random;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
 
 public class Philosopher extends Thread {
-    private ReentrantLock leftChopstick, rightChopstick;
-    private Random random;
+    private boolean eating;
+    private Philosopher left;
+    private Philosopher right;
+    private ReentrantLock table;
+    private Condition condition;
 
-    public Philosopher(ReentrantLock left, ReentrantLock right) {
-        leftChopstick = left;
-        rightChopstick = right;
-        random = new Random();
+    public Philosopher(ReentrantLock table) {
+        eating = false;
+        this.table = table;
+        condition = table.newCondition();
+    }
+
+    public void setLeft(Philosopher left) {
+        this.left = left;
+    }
+
+    public void setRight(Philosopher right) {
+        this.right = right;
     }
 
     public void run() {
         try {
             while (true) {
-                Thread.sleep(random.nextInt(1000));
-                leftChopstick.lock();
-                try {
-                    if (rightChopstick.tryLock(1000, TimeUnit.MILLISECONDS)) {
-                        try {
-                            Thread.sleep(random.nextInt(1000));
-                        } finally {
-                            rightChopstick.unlock();
-                        }
-                    }
-                } finally {
-                    leftChopstick.unlock();
-                }
+                think();
+                eat();
             }
         } catch (InterruptedException e) {
 
         }
+    }
+
+    private void think() throws InterruptedException {
+        table.lock();
+        try {
+            eating = false;
+            left.condition.signal();
+            right.condition.signal();
+        } finally {
+            table.unlock();
+        }
+        Thread.sleep(1000);
+    }
+
+    private void eat() throws InterruptedException {
+        table.lock();
+        try {
+            while (left.eating || right.eating) {
+                condition.await();
+            }
+            eating = true;
+        } finally {
+            table.unlock();
+        }
+        Thread.sleep(1000);
     }
 }
 

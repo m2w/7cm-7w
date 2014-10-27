@@ -1,18 +1,26 @@
 package com.tibidat;
 
+import java.util.concurrent.locks.ReentrantLock;
+
 public class DiningPhilosophers {
 
     public static void main(String[] args) throws InterruptedException {
-        Chopstick c1 = new Chopstick(1);
-        Chopstick c2 = new Chopstick(2);
-        Chopstick c3 = new Chopstick(3);
-        Chopstick c4 = new Chopstick(4);
-        Chopstick c5 = new Chopstick(5);
-        Philosopher p1 = new Philosopher(c1, c2);
-        Philosopher p2 = new Philosopher(c2, c3);
-        Philosopher p3 = new Philosopher(c3, c4);
-        Philosopher p4 = new Philosopher(c4, c5);
-        Philosopher p5 = new Philosopher(c5, c1);
+        ReentrantLock table = new ReentrantLock();
+        Philosopher p1 = new Philosopher(table);
+        Philosopher p2 = new Philosopher(table);
+        Philosopher p3 = new Philosopher(table);
+        Philosopher p4 = new Philosopher(table);
+        Philosopher p5 = new Philosopher(table);
+        p1.setLeft(p5);
+        p1.setRight(p2);
+        p2.setLeft(p1);
+        p2.setRight(p3);
+        p3.setLeft(p2);
+        p3.setRight(p4);
+        p4.setLeft(p3);
+        p4.setRight(p5);
+        p5.setLeft(p4);
+        p5.setRight(p1);
 
         p1.run();
         p2.run();
