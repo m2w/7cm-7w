@@ -3,6 +3,7 @@ package com.tibidat;
 import java.util.concurrent.locks.ReentrantLock;
 
 public class ConcurrentSortedList {
+    private final ReentrantLock lock = new ReentrantLock();
     private final Node head;
     private final Node tail;
 
@@ -15,41 +16,35 @@ public class ConcurrentSortedList {
 
     public void insert(int value) {
         Node current = head;
-        current.lock.lock();
+        lock.lock();
         Node next = current.next;
         try {
             while (true) {
-                next.lock.lock();
-                try {
-                    if (next == tail || next.value < value) {
-                        Node node = new Node(value, current, next);
-                        next.prev = node;
-                        current.next = node;
-                        return;
-                    }
-                } finally {
-                    current.lock.unlock();
+                if (next == tail || next.value < value) {
+                    Node node = new Node(value, current, next);
+                    next.prev = node;
+                    current.next = node;
+                    return;
                 }
                 current = next;
                 next = current.next;
             }
         } finally {
-            next.lock.unlock();
+            lock.unlock();
         }
     }
 
     public int size() {
         Node current = tail;
         int count = 0;
-        while (current.prev != head) {
-            ReentrantLock lock = current.lock;
-            lock.lock();
-            try {
+        lock.lock();
+        try {
+            while (current.prev != head) {
                 ++count;
                 current = current.prev;
-            } finally {
-                lock.unlock();
             }
+        } finally {
+            lock.unlock();
         }
         return count;
     }
@@ -58,7 +53,6 @@ public class ConcurrentSortedList {
         int value;
         Node prev;
         Node next;
-        ReentrantLock lock = new ReentrantLock();
 
         Node() {
         }
