@@ -42,26 +42,43 @@ public class Pages implements Iterable<Page> {
             public void endElement(String uri, String name, String qName) throws LimitReachedException {
                 if (qName.equals("page")) {
                     readingPage = false;
-                    readingTitle = false;
-                    readingText = false;
                     if (pageCount >= lim) {
                         throw new LimitReachedException();
                     }
                 }
+                if (qName.equals("title")) {
+                    readingTitle = false;
+                }
+                if (qName.equals("text")) {
+                    readingText = false;
+                }
             }
 
             public void characters(char ch[], int start, int end) {
-                String str = new String(ch, start, end);
+                String str = new String(ch, start, end).trim();
                 if (readingTitle) {
-                    pages.get(pageCount).setTitle(str);
+                    if (str.contains(":")) {
+                        pages.remove(pageCount - 1);
+                        pageCount--;
+                        readingPage = false;
+                        readingTitle = false;
+                        readingText = false;
+                    } else {
+                        pages.get(pageCount - 1).setTitle(str);
+                    }
                 }
                 if (readingText) {
-                    pages.get(pageCount).setText(str);
+                    pages.get(pageCount - 1).setText(str);
                 }
             }
         };
-        xr.parse(new InputSource(new FileReader(inputFile)));
         xr.setContentHandler(handler);
+        try {
+            xr.parse(new InputSource(new FileReader(inputFile)));
+        } catch (LimitReachedException e) {
+
+        }
+        System.out.println(pages.size());
     }
 
     @Override

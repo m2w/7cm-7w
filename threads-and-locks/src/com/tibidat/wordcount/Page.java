@@ -2,8 +2,8 @@ package com.tibidat.wordcount;
 
 // Represents a single page
 public class Page {
+    private StringBuilder sb = new StringBuilder();
     private String title;
-    private String text;
 
     public Page() {
 
@@ -14,10 +14,10 @@ public class Page {
     }
 
     public String getText() {
-        return this.text;
+        return sb.toString();
     }
 
     public void setText(String text) {
-        this.text = text;
+        sb.append(text);
     }
 }
