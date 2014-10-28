@@ -2,10 +2,8 @@ package com.tibidat.wordcount;
 
 import java.util.Map;
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.locks.ReentrantLock;
 
 public class Counter implements Runnable {
-    private static ReentrantLock lock = new ReentrantLock();
     private BlockingQueue<Page> queue;
     private Map<String, Integer> counts;
 
@@ -13,6 +11,7 @@ public class Counter implements Runnable {
         this.queue = queue;
         this.counts = counts;
     }
+
     @Override
     public void run() {
         try {
@@ -32,16 +31,15 @@ public class Counter implements Runnable {
     }
 
     private void countWord(String word) {
-        Counter.lock.lock();
-        try {
+        while (true) {
             Integer currentCount = counts.get(word);
             if (currentCount == null) {
-                counts.put(word, 1);
-            } else {
-                counts.put(word, currentCount + 1);
+                if (counts.putIfAbsent(word, 1) == null) {
+                    break;
+                }
+            } else if (counts.replace(word, currentCount, currentCount + 1)) {
+                break;
             }
-        } finally {
-            Counter.lock.unlock();
         }
     }
 }
