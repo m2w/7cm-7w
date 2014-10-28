@@ -20,4 +20,8 @@ public class Page {
     public void setText(String text) {
         sb.append(text);
     }
+
+    public boolean isPoisonPill() {
+        return false;
+    }
 }

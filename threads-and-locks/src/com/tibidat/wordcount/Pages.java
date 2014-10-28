@@ -76,9 +76,8 @@ public class Pages implements Iterable<Page> {
         try {
             xr.parse(new InputSource(new FileReader(inputFile)));
         } catch (LimitReachedException e) {
-
+            System.out.println("Page limit reached");
         }
-        System.out.println(pages.size());
     }
 
     @Override
