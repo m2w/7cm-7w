@@ -13,6 +13,8 @@ public class Words implements Iterable<String>, Iterator<String> {
         bi = BreakIterator.getWordInstance();
         bi.setText(text);
         this.text = text;
+        start = bi.first();
+        end = bi.next();
     }
 
     @Override
@@ -22,18 +24,14 @@ public class Words implements Iterable<String>, Iterator<String> {
 
     @Override
     public boolean hasNext() {
-        return bi.next() != BreakIterator.DONE;
+        return end != BreakIterator.DONE;
     }
 
     @Override
     public String next() {
-        end = bi.current();
         String hit = text.substring(start, end);
         start = end;
-        if (Character.isLetterOrDigit(hit.charAt(0))) {
-            return hit;
-        }
-        // TODO: strip non-letters?
-        return "";
+        end = bi.next();
+        return hit;
     }
 }

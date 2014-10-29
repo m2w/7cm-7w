@@ -39,8 +39,6 @@ public class Pages implements Iterable<Page>, Iterator<Page> {
     @Override
     public Page next() {
         boolean insidePage = false;
-        boolean title = false;
-        boolean text = false;
         Page page = new Page();
         try {
             pageCount++;
@@ -53,42 +51,18 @@ public class Pages implements Iterable<Page>, Iterator<Page> {
                         if (xmlr.getLocalName().equals("page")) {
                             insidePage = true;
                         }
-                        if (xmlr.getLocalName().equals("title")) {
-                            title = true;
-                        }
-                        if (xmlr.getLocalName().equals("text")) {
-                            text = true;
+                        if (insidePage) {
+                            if (xmlr.getLocalName().equals("title")) {
+                                page.setTitle(xmlr.getElementText());
+                            }
+                            if (xmlr.getLocalName().equals("text")) {
+                                page.setText(xmlr.getElementText());
+                            }
                         }
                         break;
                     case XMLStreamConstants.END_ELEMENT:
-                        if (xmlr.getLocalName().equals("page") && !insidePage) {
+                        if (xmlr.getLocalName().equals("page")) {
                             break loop;
-                        }
-                        if (xmlr.getLocalName().equals("title")) {
-                            title = false;
-                        }
-                        if (xmlr.getLocalName().equals("text")) {
-                            text = false;
-                        }
-                        break;
-                    case XMLStreamConstants.CHARACTERS:
-                        if (insidePage) {
-                            int start = xmlr.getTextStart();
-                            int length = xmlr.getTextLength();
-                            String str = new String(xmlr.getTextCharacters(),
-                                    start,
-                                    length);
-                            if (title) {
-                                if (str.contains(":")) {
-                                    insidePage = false;
-                                    break;
-                                } else {
-                                    page.setTitle(str);
-                                }
-                            }
-                            if (text) {
-                                page.setText(str);
-                            }
                         }
                         break;
                     default:
