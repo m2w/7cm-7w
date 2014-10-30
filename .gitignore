@@ -2,3 +2,6 @@ gradle.xml
 workspace.xml
 tasks.xml
 .idea/libraries
+.lein-repl-history
+.nrepl-port
+target/
