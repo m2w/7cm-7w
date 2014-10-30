@@ -1,4 +1,4 @@
-(defproject test "0.1.0-SNAPSHOT"
+(defproject funcprog "0.1.0-SNAPSHOT"
   :description "Code for Chapter 3 of Seven Concurrency Models in Seven Weeks"
   :license {:name "MIT License"
             :url "http://opensource.org/licenses/MIT"}
