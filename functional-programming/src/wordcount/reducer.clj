@@ -23,6 +23,14 @@
                   (fn [acc v]
                     (reducef acc (mapf v))))))
 
+(defn my-flatten [reducible]
+  (make-reducer reducible
+                (fn [reducef]
+                  (fn [acc v]
+                    (if (sequential? v)
+                      (coll-reduce (my-flatten v) reducef acc)
+                      (reducef acc v))))))
+
 (defn my-fold
   ([reducef coll]
      (my-fold reducef reducef coll))
